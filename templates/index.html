@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YOLO Object Detection</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { display: flex; justify-content: center; margin-top: 20px; }
+        .video-container { flex: 1; }
+        .checklist-container { flex: 1; margin-left: 30px; text-align: left; }
+        .checklist li { margin: 5px 0; }
+        .found { color: green; font-weight: bold; }
+        button { padding: 10px 15px; margin-top: 10px; border-radius: 8px; cursor: pointer; }
+        #score { font-size: 18px; margin-bottom: 10px; }
+        #congrats { font-weight: bold; color: rgb(255, 0, 0); margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>YOLO Object Detection</h1>
+    <div class="container">
+        <div class="video-container">
+            <img src="{{ url_for('video_feed') }}" width="640" height="480">
+        </div>
+        <div class="checklist-container">
+            <h2>Checklist</h2>
+            <div id="score">0 / {{ required_objects|length }} objects found</div>
+            <ul class="checklist" id="checklist">
+                {% for obj in required_objects %}
+                <li id="{{ obj }}">{{ obj }}</li>
+                {% endfor %}
+            </ul>
+            <h2 id="congrats">🎉 Congratulations! You found all objects! 🎉</h2>
+            <button onclick="resetChecklist()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <script>
+        async function updateChecklist() {
+            const response = await fetch('/get_status');
+            const data = await response.json();
+
+            // Update checklist
+            for (const [obj, found] of Object.entries(data.status)) {
+                let item = document.getElementById(obj);
+                if (item) {
+                    if (found) item.classList.add("found");
+                    else item.classList.remove("found");
+                }
+            }
+
+            // Update score
+            document.getElementById("score").innerText =
+                `${data.found} / ${data.total} objects found`;
+
+            // Show congratulation if completed
+            if (data.found === data.total) {
+                document.getElementById("congrats").style.display = "block";
+            }
+        }
+
+        async function resetChecklist() {
+            const response = await fetch('/reset');
+            const data = await response.json();
+
+            // Reset checklist
+            const checklist = document.getElementById("checklist");
+            checklist.innerHTML = "";
+            for (const obj of data.new_objects) {
+                const li = document.createElement("li");
+                li.id = obj;
+                li.innerText = obj;
+                checklist.appendChild(li);
+            }
+
+            // Reset score
+            document.getElementById("score").innerText =
+                `0 / ${data.new_objects.length} objects found`;
+
+            // Hide congratulation
+            document.getElementById("congrats").style.display = "none";
+        }
+
+        setInterval(updateChecklist, 1000);
+    </script>
+</body>
+</html>
