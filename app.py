@@ -6,9 +6,8 @@ from ultralytics import YOLO
 app = Flask(__name__)
 
 # Load YOLO model
-model = YOLO(r"C:\Users\HanDong\Documents\AI crew\Flask\real-time_object_detection\runs/detect/train/weights/best.pt")
-#categories = model.names.values()
-categories = ['backpack', 'book', 'bottle', 'phone', 'chair', 'cup', 'fork', 'laptop', 'F-Code logo', 'mouse', 'person', 'spoon', 'umbrella']
+model = YOLO("object_detection.pt")
+categories = ['person', 'backpack', 'umbrella', 'bottle', 'cup', 'fork', 'spoon', 'chair', 'laptop', 'mouse', 'phone', 'book']
 
 # Initial random 5 objects
 required_objects = random.sample(categories, 5)
