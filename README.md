@@ -56,3 +56,5 @@ python app.py
 ```
 
 5. Open your browser at:  ```http://127.0.0.1:5000/```
+
+**Note**: The video frame can be broken on the first run, reload page or go to `/video_feed` to check if your camera is open.
